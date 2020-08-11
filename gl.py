@@ -48,6 +48,7 @@ class Render(object):
         self.pointcolor = WHITE
         self.light = V3(0,0,1)
         self.active_texture = None
+        self.active_shader = None
         
 
     def glInit(self):
@@ -191,10 +192,10 @@ class Render(object):
                   round(vertex[1] * scale.y + translate.y),
                   round(vertex[2] * scale.z + translate.z))
     
-    def glLoadModel(self, filename, translate = V3(0,0,0), scale = V3(1,1,1), texture = None):
+    def glLoadModel(self, filename, translate = V3(0,0,0), scale = V3(1,1,1)):
         model = Obj(filename)
 
-        light = V3(0,0,1)
+        #light = V3(0,0,1)
 
         for face in model.faces:
 
@@ -228,24 +229,16 @@ class Render(object):
                 vt2 = V2(0,0) 
                 vt3 = V2(0,0) 
 
-            s1 = V3((v1.x - v0.x), (v1.y - v0.y), (v1.z - v0.z))
-            s2 = V3((v2.x - v0.x), (v2.y - v0.y), (v2.z - v0.z))
-                
-            normal = V3(((s1.y * s2.z)- (s2.y * s1.z)), ((s1.x * s2.z)- (s2.x * s1.z)), ((s1.y * s2.x)- (s2.y * s1.x)))
+            vn0 = model.normals[face[0][2] - 1]
+            vn1 = model.normals[face[1][2] - 1]
+            vn2 = model.normals[face[2][2] - 1]
+            if vertCount > 3:
+                vn3 = model.normals[face[3][2] - 1]
 
             try:
-                norm_normal = ( abs(normal.x)**2 + abs(normal.y)**2 + abs(normal.z)**2 )**(1/2)
-            
-                normal = V3((normal.x / norm_normal), (normal.y / norm_normal), (normal.z / norm_normal))
-
-                intensity = (normal.x * light.x) + (normal.y * light.y) + (normal.z * light.z)
- 
-                if intensity >=0:
-                    self.triangle_bc(v0,v1,v2, texture = texture, texcoords = (vt0,vt1,vt2), intensity = intensity )
-                    if vertCount > 3: 
-                        v3 = model.vertices[ face[3][0] - 1 ]
-                        v3 = self.transform(v3,translate, scale)
-                        self.triangle_bc(v0,v2,v3, texture = texture, texcoords = (vt0,vt2,vt3), intensity = intensity)
+                self.triangle_bc(v0,v1,v2, texcoords = (vt0,vt1,vt2), normals = (vn0,vn1,vn2))
+                if vertCount > 3:
+                    self.triangle_bc(v0,v2,v3, texcoords = (vt0,vt2,vt3), normals = (vn0,vn2,vn3))
             except:
                 pass
 
@@ -293,7 +286,7 @@ class Render(object):
             flatBottomTriangle(D,B,C)
             flatTopTriangle(A,B,D)
 
-    def triangle_bc(self, A, B, C,  _color = WHITE, texture = None, texcoords = (), intensity = 1):
+    def triangle_bc(self, A, B, C, texcoords = (), normals = (), _color = None):
         minX = min(A.x, B.x, C.x)
         minY = min(A.y, B.y, C.y)
         maxX = max(A.x, B.x, C.x)
@@ -309,26 +302,14 @@ class Render(object):
                     z = A.z * u + B.z * v + C.z * w
 
                     if z > self.zbuffer[y][x]:
-                        b, g , r = _color
-                        b /= 255
-                        g /= 255
-                        r /= 255
+                        r, g, b = self.active_shader(
+                            self,
+                            verts=(A,B,C),
+                            baryCoords=(u,v,w),
+                            texCoords=texcoords,
+                            normals=normals,
+                            color = _color or self.pointcolor)
 
-                        b *= intensity
-                        g *= intensity
-                        r *= intensity
-
-                        if texture:
-                            ta, tb, tc = texcoords
-                            tx = ta.x * u + tb.x * v + tc.x * w
-                            ty = ta.y * u + tb.y * v + tc.y * w
-
-                            texColor = texture.getColor(tx, ty)
-                            b *= texColor[0] / 255
-                            g *= texColor[1] / 255
-                            r *= texColor[2] / 255
-                        
-                        #print(r,g,b)
                         self.point(x, y, color(r,g,b))
                         self.zbuffer[y][x] = z
 
@@ -381,3 +362,48 @@ class Render(object):
                 
 
         archivo.close()
+
+    #def loadModel(self, filename, translate = V3(0,0,0), scale = V3(1,1,1)):
+    #    model = Obj(filename)
+
+    #    for face in model.faces:
+
+    #        vertCount = len(face)
+
+    #        v0 = model.vertices[ face[0][0] - 1 ]
+    #        v1 = model.vertices[ face[1][0] - 1 ]
+    #        v2 = model.vertices[ face[2][0] - 1 ]
+    #        if vertCount > 3:
+    #            v3 = model.vertices[ face[3][0] - 1 ]
+
+    #        v0 = self.transform(v0,translate, scale)
+    #        v1 = self.transform(v1,translate, scale)
+    #        v2 = self.transform(v2,translate, scale)
+    #        if vertCount > 3:
+    #            v3 = self.transform(v3,translate, scale)
+
+    #        if self.active_texture:
+    #            vt0 = model.texcoords[face[0][1] - 1]
+    #            vt1 = model.texcoords[face[1][1] - 1]
+    #            vt2 = model.texcoords[face[2][1] - 1]
+    #            vt0 = V2(vt0[0], vt0[1])
+    #            vt1 = V2(vt1[0], vt1[1])
+    #            vt2 = V2(vt2[0], vt2[1])
+    #            if vertCount > 3:
+    #                vt3 = model.texcoords[face[3][1] - 1]
+    #                vt3 = V2(vt3[0], vt3[1])
+    #        else:
+    #            vt0 = V2(0,0) 
+    #            vt1 = V2(0,0) 
+    #            vt2 = V2(0,0) 
+    #            vt3 = V2(0,0)
+
+    #        vn0 = model.normals[face[0][2] - 1]
+    #        vn1 = model.normals[face[1][2] - 1]
+    #        vn2 = model.normals[face[2][2] - 1]
+    #        if vertCount > 3:
+    #            vn3 = model.normals[face[3][2] - 1]
+
+    #        self.triangle_bc(v0,v1,v2, texcoords = (vt0,vt1,vt2), normals = (vn0,vn1,vn2))
+    #        if vertCount > 3: #asumamos que 4, un cuadrado
+    #            self.triangle_bc(v0,v2,v3, texcoords = (vt0,vt2,vt3), normals = (vn0,vn2,vn3))

@@ -24,8 +24,8 @@ def gourad(render, **kwargs):
     nz = na[2] * u + nb[2] * v + nc[2] * w
 
     normal = V3(nx, ny, nz)
-
-    intensity = np.dot(normal, render.light)
+    
+    intensity = ((normal.x * render.light.x) + (normal.y * render.light.y) + (normal.z * render.light.z))
 
     b *= intensity
     g *= intensity
@@ -35,4 +35,3 @@ def gourad(render, **kwargs):
         return r, g, b
     else:
         return 0,0,0
-
