@@ -46,6 +46,8 @@ class Render(object):
     def __init__(self):
         self.backcolor = BLACK
         self.pointcolor = WHITE
+        self.light = V3(0,0,1)
+        self.active_texture = None
         
 
     def glInit(self):
@@ -210,7 +212,7 @@ class Render(object):
             if vertCount > 3:
                 v3 = self.transform(v3,translate, scale)
 
-            if texture:
+            if self.active_texture:
                 vt0 = model.texcoords[face[0][1] - 1]
                 vt1 = model.texcoords[face[1][1] - 1]
                 vt2 = model.texcoords[face[2][1] - 1]
