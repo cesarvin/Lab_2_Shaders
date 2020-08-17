@@ -27,3 +27,10 @@ r.active_shader = static_matrix
 r.glLoadModel('./models/model.obj',V3(500,500,0), V3(300,300,300))
 print('static_matrix.bmp creado')
 r.glFinish('static_matrix.bmp')
+r.glClear()
+
+r.active_shader = negative
+r.glLoadModel('./models/model.obj',V3(500,500,0), V3(300,300,300))
+print('negative.bmp creado')
+r.glFinish('negative.bmp')
+r.glClear()
