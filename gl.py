@@ -131,8 +131,8 @@ class Render(object):
         y0 = ( y0 + 1) * (self.glViewPortHeight / 2 ) + self.glViewPortY
         x1 = ( x1 + 1) * (self.glViewPortWidth  / 2 ) + self.glViewPortX
         y1 = ( y1 + 1) * (self.glViewPortHeight / 2 ) + self.glViewPortY
-        #print(round(x1))
-        #print(round(y1))
+        # print(round(x1))
+        # print(round(y1))
         self.line(round(x0), round(y0), round(x1), round(y1), color)
 
     def line(self, v0, v1, color = None):
@@ -363,47 +363,3 @@ class Render(object):
 
         archivo.close()
 
-    #def loadModel(self, filename, translate = V3(0,0,0), scale = V3(1,1,1)):
-    #    model = Obj(filename)
-
-    #    for face in model.faces:
-
-    #        vertCount = len(face)
-
-    #        v0 = model.vertices[ face[0][0] - 1 ]
-    #        v1 = model.vertices[ face[1][0] - 1 ]
-    #        v2 = model.vertices[ face[2][0] - 1 ]
-    #        if vertCount > 3:
-    #            v3 = model.vertices[ face[3][0] - 1 ]
-
-    #        v0 = self.transform(v0,translate, scale)
-    #        v1 = self.transform(v1,translate, scale)
-    #        v2 = self.transform(v2,translate, scale)
-    #        if vertCount > 3:
-    #            v3 = self.transform(v3,translate, scale)
-
-    #        if self.active_texture:
-    #            vt0 = model.texcoords[face[0][1] - 1]
-    #            vt1 = model.texcoords[face[1][1] - 1]
-    #            vt2 = model.texcoords[face[2][1] - 1]
-    #            vt0 = V2(vt0[0], vt0[1])
-    #            vt1 = V2(vt1[0], vt1[1])
-    #            vt2 = V2(vt2[0], vt2[1])
-    #            if vertCount > 3:
-    #                vt3 = model.texcoords[face[3][1] - 1]
-    #                vt3 = V2(vt3[0], vt3[1])
-    #        else:
-    #            vt0 = V2(0,0) 
-    #            vt1 = V2(0,0) 
-    #            vt2 = V2(0,0) 
-    #            vt3 = V2(0,0)
-
-    #        vn0 = model.normals[face[0][2] - 1]
-    #        vn1 = model.normals[face[1][2] - 1]
-    #        vn2 = model.normals[face[2][2] - 1]
-    #        if vertCount > 3:
-    #            vn3 = model.normals[face[3][2] - 1]
-
-    #        self.triangle_bc(v0,v1,v2, texcoords = (vt0,vt1,vt2), normals = (vn0,vn1,vn2))
-    #        if vertCount > 3: #asumamos que 4, un cuadrado
-    #            self.triangle_bc(v0,v2,v3, texcoords = (vt0,vt2,vt3), normals = (vn0,vn2,vn3))
